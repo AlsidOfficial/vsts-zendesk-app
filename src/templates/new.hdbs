@@ -20,7 +20,7 @@
                 <select id='area' class='area input-xlarge'></select>
             </div>
         </div>
-        
+
         <div class='control-group'>
             <label class='control-label' for='type'>{{t "modals.new.fields.type"}}</label>
             <div class='controls'>
@@ -31,10 +31,10 @@
             <label class='control-label' for='severity'>{{t "modals.new.fields.severity"}}</label>
             <div class='controls'>
                 <select id='severity' class='severity input-xlarge'>
-                    <option value='1 - Critical'>1 - Critical</option>
-                    <option value='2 - High'>2 - High</option>
-                    <option value='3 - Medium'>3 - Medium</option>
-                    <option value='4 - Low'>4 - Low</option>
+                    <option value='1 - Blocker'>1 - Blocker</option>
+                    <option value='2 - Major'>2 - Major</option>
+                    <option value='3 - Moderate' selected>3 - Moderate</option>
+                    <option value='4 - Minor'>4 - Minor </option>
                 </select>
             </div>
         </div>

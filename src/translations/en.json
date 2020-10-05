@@ -5,7 +5,7 @@
             "vso_account": {
                 "label": "Visual Studio Team Services account name",
                 "helpText":
-                    "Enter your Visual Studio Team Services subdomain (part before visualstudio.com). Learn more by visiting http://go.microsoft.com/fwlink/?LinkID=396756"
+                    "Enter your Visual Studio Team Services subdomain (part after dev.azure.com). Learn more by visiting http://go.microsoft.com/fwlink/?LinkID=396756"
             },
             "vso_tag": {
                 "label": "Visual Studio Team Services work item tag",
@@ -83,7 +83,7 @@
             "errWorkItemIdNaN": "The work item id must be a number.",
             "errCannotGetWorkItem": "Something went wrong while checking work item. Please try again.",
             "errCannotUpdateWorkItem": "Something went wrong while updating work item. Please try again.",
-            "errAlreadyLinked": "This ticket is already linked that work item."
+            "errAlreadyLinked": "This ticket is already linked to that work item."
         },
         "new": {
             "title": "New Visual Studio Team Services Work Item",

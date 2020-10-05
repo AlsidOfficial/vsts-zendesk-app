@@ -641,8 +641,8 @@ const ModalApp = BaseApp.extend({
 
         if (this.hasFieldDefined(workItemType, "Microsoft.VSTS.TCM.ReproSteps")) {
             operations.push(this.buildPatchToAddWorkItemField("Microsoft.VSTS.TCM.ReproSteps", description));
-        } 
-        
+        }
+
         //Set tag
         if (this.setting("vso_tag")) {
             operations.push(this.buildPatchToAddWorkItemField("System.Tags", this.setting("vso_tag")));
@@ -816,7 +816,7 @@ const ModalApp = BaseApp.extend({
             }.bind(this),
         );
         return attachments;
-    },    
+    },
     buildPatchToRemoveWorkItemHyperlink: function(pos) {
         return {
             op: "remove",

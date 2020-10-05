@@ -232,7 +232,7 @@ const App = (function() {
                 return this.vsoRequest(helpers.fmt("/%@/_apis/wit/wiql/%@", projectName, queryId));
             },
             createVsoWorkItem: function(projectId, witName, data) {
-                return this.vsoRequest(helpers.fmt("/%@/_apis/wit/workitems/$%@", projectId, witName), undefined, {
+                return this.vsoRequest(helpers.fmt("/%@/_apis/wit/workitems/$%@?bypassRules=true", projectId, witName), undefined, {
                     type: "PUT",
                     contentType: "application/json-patch+json",
                     data: JSON.stringify(data),

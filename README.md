@@ -1,18 +1,20 @@
 # Visual Studio Team Services App for Zendesk
 
-![master build](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/6993/badge)
+<!-- ![master build](https://mseng.visualstudio.com/_apis/public/build/definitions/b924d696-3eae-4116-8443-9a18392d8544/6993/badge) -->
 
-> Get the [latest version](https://github.com/Microsoft/vsts-zendesk-app/releases) of the app
+Forked from [Microsoft official's repository](https://github.com/microsoft/vsts-zendesk-app).
+
+> Get the [latest version](https://github.com/AlsidOfficial/vsts-zendesk-app/releases) of the app
 
 Unite your customer support and development teams. Quickly create or link work items to tickets, enable efficient two-way communication, and stop using email to check status.
 
-### Create work items for your engineers right from Zendesk
+## Create work items for your engineers right from Zendesk
 
 With the Visual Studio Team Services app for Zendesk, users in Zendesk can quickly create a new work item from a Zendesk ticket.
 
 ![img](images/zendesk-screen1.png)
 
-### Get instant access to the status of linked work items
+## Get instant access to the status of linked work items
 
 Give your customer support team easy access to the information they need. See details about work items linked to a Zendesk ticket.
 
@@ -22,7 +24,7 @@ Give your customer support team easy access to the information they need. See de
 
 ### Install the app to Zendesk
 
-1. [Download the latest release](https://github.com/Microsoft/vsts-zendesk-app/releases) .zip file
+1. [Download the latest release](https://github.com/AlsidOfficial/vsts-zendesk-app/releases) .zip file
 1. From Zendesk, click the settings icon (gear)
 1. Under **Apps** click Manage.
 1. Click **Upload private app**
