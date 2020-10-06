@@ -1,4 +1,6 @@
 <form class='form-horizontal project-selection'>
+    <input type='hidden' id='type' class='type' value='Bug' />
+
     <p class="help">{{t "modals.new.help"}}</p>
 
     <p class='alert alert-error errors' style='display:none'>
@@ -21,20 +23,46 @@
             </div>
         </div>
 
-        <div class='control-group'>
-            <label class='control-label' for='type'>{{t "modals.new.fields.type"}}</label>
-            <div class='controls'>
-                <select id='type' class='type input-xlarge'></select>
-            </div>
-        </div>
         <div class='control-group severityInput'>
             <label class='control-label' for='severity'>{{t "modals.new.fields.severity"}}</label>
             <div class='controls'>
                 <select id='severity' class='severity input-xlarge'>
-                    <option value='1 - Blocker'>1 - Blocker</option>
-                    <option value='2 - Major'>2 - Major</option>
-                    <option value='3 - Moderate' selected>3 - Moderate</option>
-                    <option value='4 - Minor'>4 - Minor </option>
+                    {{#each severities}}
+                    <option value='{{value}}' {{#if selected}}selected{{/if}}>{{value}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+
+        <div class='control-group severityInput'>
+            <label class='control-label' for='repeatability'>{{t "modals.new.fields.repeatability"}}</label>
+            <div class='controls'>
+                <select id='repeatability' class='repeatability input-xlarge'>
+                    {{#each repeatabilities}}
+                    <option value='{{value}}' {{#if selected}}selected{{/if}}>{{value}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+
+        <div class='control-group severityInput'>
+            <label class='control-label' for='frequency'>{{t "modals.new.fields.frequency"}}</label>
+            <div class='controls'>
+                <select id='frequency' class='frequency input-xlarge'>
+                    {{#each frequencies}}
+                    <option value='{{value}}' {{#if selected}}selected{{/if}}>{{value}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+
+        <div class='control-group severityInput'>
+            <label class='control-label' for='regression'>{{t "modals.new.fields.regression"}}</label>
+            <div class='controls'>
+                <select id='regression' class='regression input-xlarge'>
+                    {{#each regressions}}
+                    <option value='{{value}}' {{#if selected}}selected{{/if}}>{{value}}</option>
+                    {{/each}}
                 </select>
             </div>
         </div>

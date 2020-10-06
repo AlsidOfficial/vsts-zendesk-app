@@ -103,7 +103,10 @@
                 "assignee": "Assignee",
                 "requester": "Requester",
                 "attachments": "Attachments",
-                "severity": "Severity"
+                "severity": "Severity",
+                "repeatability": "Repeatability",
+                "frequency": "Frequency",
+                "regression": "Regression"
             },
             "copyDescription": "Copy the ticket's description",
             "copyTemplate": "Use configured template"

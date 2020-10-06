@@ -101,7 +101,7 @@ const App = (function() {
         }),
         VSO_ZENDESK_LINK_TO_TICKET_PREFIX = "ZendeskLinkTo_Ticket_",
         VSO_ZENDESK_LINK_TO_TICKET_ATTACHMENT_PREFIX = "ZendeskLinkTo_Attachment_Ticket_",
-        VSO_WI_TYPES_WHITE_LISTS = ["Bug", "Product Backlog Item", "User Story", "Requirement", "Issue"],
+        VSO_WI_TYPES_WHITE_LISTS = ["Bug"],
         VSO_PROJECTS_PAGE_SIZE = 100; //#endregion
 
     return {
@@ -182,6 +182,19 @@ const App = (function() {
                             },
                         },
                     },
+                };
+            },
+            getFullTicket: async function(data) {
+                const ticket = await wrapZafClient(this.zafClient, "ticket");
+                return {
+                    type: "GET",
+                    url: helpers.fmt("/api/v2/tickets/%@.json", ticket.id),
+                };
+            },
+            getTicketFields: async function(data) {
+                return {
+                    type: "GET",
+                    url: "/api/v2/ticket_fields.json",
                 };
             },
             saveSettings: function(data) {

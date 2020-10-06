@@ -112,30 +112,13 @@ const getVm = function(path) {
     return storedVm;
 };
 
-var INSTALLATION_ID = 0,
-    //For dev purposes, when using Zat, set this to your current installation id
-    VSO_URL_FORMAT = "https://%@.visualstudio.com/DefaultCollection",
-    VSO_API_DEFAULT_VERSION = "1.0",
-    VSO_API_RESOURCE_VERSION = {},
-    TAG_PREFIX = "vso_wi_",
-    DEFAULT_FIELD_SETTINGS = JSON.stringify({
-        "System.WorkItemType": {
-            summary: true,
-            details: true,
-        },
-        "System.Title": {
-            summary: false,
-            details: true,
-        },
-        "System.Description": {
-            summary: true,
-            details: true,
-        },
-    }),
+var QA_FIELD_NAME_SEVERITY = "[QA] - Severity",
+    QA_FIELD_NAME_REPEATABILITY = "[QA] - Repeatability",
+    QA_FIELD_NAME_REGRESSION = "[QA] - Regression",
+    QA_FIELD_NAME_FREQUENCY = "[QA] - Frequency",
     VSO_ZENDESK_LINK_TO_TICKET_PREFIX = "ZendeskLinkTo_Ticket_",
     VSO_ZENDESK_LINK_TO_TICKET_ATTACHMENT_PREFIX = "ZendeskLinkTo_Attachment_Ticket_",
-    VSO_WI_TYPES_WHITE_LISTS = ["Bug", "Product Backlog Item", "User Story", "Requirement", "Issue"],
-    VSO_PROJECTS_PAGE_SIZE = 100; //#endregion
+    VSO_WI_TYPES_WHITE_LISTS = ["Bug"]; //#endregion
 
 // Create a new ZAFClient
 var client = ZAFClient.init();
@@ -308,21 +291,49 @@ const ModalApp = BaseApp.extend({
     action_initNewWorkItem: async function() {
         const $modal = this.$("[data-main]");
         $modal.find(".modal-body").html(this.renderTemplate("loading"));
+        this.resize({ height: "520px", width: "780px" });
+
         const data = await this.execQueryOnSidebar(["ajax", "getComments"]);
         var attachments = _.flatten(
             _.map(data.comments, function(comment) {
                 return comment.attachments || [];
             }),
             true,
-        ); // Check if we have a template for decription
+        );
 
+        // Check if we have a template for description
         var templateDefined = !!this.setting("vso_wi_description_template");
+
+        // Find QA fields that are needed in the form
+        // FIXME
+        // const res = await Promise.all([this.execQueryOnSidebar(["ajax", "getFullTicket"]), this.execQueryOnSidebar(["ajax", "getTicketFields"])]);
+        // console.info("res: ", res);
+        const currentCustomFields = (await this.execQueryOnSidebar(["ajax", "getFullTicket"]))['ticket']['custom_fields'];
+        const ticketFields = (await this.execQueryOnSidebar(["ajax", "getTicketFields"]))['ticket_fields'];
+        console.info("ticket.custom_fields:", currentCustomFields);
+        console.info("ticket_fields:", ticketFields);
+
+        const currentTicketSeverityValue = this.getTicketQAValue(QA_FIELD_NAME_SEVERITY, ticketFields, currentCustomFields);
+        const currentTicketRepeatabilityValue = this.getTicketQAValue(QA_FIELD_NAME_REPEATABILITY, ticketFields, currentCustomFields);
+        const currentTicketFrequencyValue = this.getTicketQAValue(QA_FIELD_NAME_FREQUENCY, ticketFields, currentCustomFields);
+        const currentTicketRegressionValue = this.getTicketQAValue(QA_FIELD_NAME_REGRESSION, ticketFields, currentCustomFields);
+
+        console.info("currentTicketSeverityValue: ", currentTicketSeverityValue);
+        console.info("currentTicketRepeatabilityValue: ", currentTicketRepeatabilityValue);
+        console.info("currentTicketFrequencyValue: ", currentTicketFrequencyValue);
+        console.info("currentTicketRegressionValue: ", currentTicketRegressionValue);
+
         $modal.find(".modal-body").html(
             this.renderTemplate("new", {
                 attachments: attachments,
                 templateDefined: templateDefined,
+                severities: currentTicketSeverityValue,
+                repeatabilities: currentTicketRepeatabilityValue,
+                frequencies: currentTicketFrequencyValue,
+                regressions: currentTicketRegressionValue,
             }),
         );
+
         $modal.find(".summary").val(getVm("temp[ticket]").subject);
         var projectCombo = $modal.find(".project");
         this.fillComboWithProjects(projectCombo);
@@ -639,6 +650,18 @@ const ModalApp = BaseApp.extend({
             operations.push(this.buildPatchToAddWorkItemField("Microsoft.VSTS.Common.Severity", $modal.find(".severity").val()));
         }
 
+        if (this.hasFieldDefined(workItemType, "Custom.Repeatability") && $modal.find(".repeatability").val()) {
+            operations.push(this.buildPatchToAddWorkItemField("Custom.Repeatability", $modal.find(".repeatability").val()));
+        }
+
+        if (this.hasFieldDefined(workItemType, "Custom.Frequency") && $modal.find(".frequency").val()) {
+            operations.push(this.buildPatchToAddWorkItemField("Custom.Frequency", $modal.find(".frequency").val()));
+        }
+
+        if (this.hasFieldDefined(workItemType, "Custom.Regression") && $modal.find(".regression").val()) {
+            operations.push(this.buildPatchToAddWorkItemField("Custom.Regression", $modal.find(".regression").val()));
+        }
+
         if (this.hasFieldDefined(workItemType, "Microsoft.VSTS.TCM.ReproSteps")) {
             operations.push(this.buildPatchToAddWorkItemField("Microsoft.VSTS.TCM.ReproSteps", description));
         }
@@ -677,6 +700,52 @@ const ModalApp = BaseApp.extend({
 
         // close the modal.
         this.zafClient.invoke("destroy");
+    },
+
+    getTicketField: function (ticketFields, ticketTitle) {
+        const fields = _.filter(ticketFields, function (field) {
+            return field.title === ticketTitle;
+        });
+
+        if (fields.length === 0) {
+            return null;
+        }
+
+        return fields[0];
+    },
+
+    getTicketQAValue: function (ticketTitle, ticketFields, currentCustomFields) {
+        const field = this.getTicketField(ticketFields, ticketTitle);
+        if (field === null) {
+            console.error(`Cannot find QA field '${ticketTitle}'`);
+            return null;
+        }
+
+        const foundFields = _.filter(currentCustomFields, function (customField) {
+            return customField.id === field.id;
+        });
+
+        if (foundFields === null || foundFields.length === 0) {
+            console.error(`Cannot find QA field '${ticketTitle}' in the ticket's custom fields (looking for property id with value ${field.id}): `, currentCustomFields);
+            return null;
+        }
+
+        const currentTicketField = foundFields[0];
+        const foundOptionsValues = _.filter(field.custom_field_options, function (fieldOption) {
+            return fieldOption.value === currentTicketField.value;
+        });
+
+        if (foundOptionsValues === null || foundOptionsValues.length === 0) {
+            console.error(`Cannot find QA option '${currentTicketField.value}' in the defined field options (matching on the "value" field):`, field.custom_field_options);
+            return null;
+        }
+
+        return field.custom_field_options.map(function (o) {
+            return {
+                value: o.name,
+                selected: foundOptionsValues[0].name === o.name,
+            };
+        });
     },
 
     isAlreadyLinkedToWorkItem: async function(id) {
@@ -848,8 +917,8 @@ const ModalApp = BaseApp.extend({
             .then(
                 function() {
                     this.drawAreasList($modal.find(".area"), projId);
-                    this.drawTypesList($modal.find(".type"), projId);
-                    $modal.find(".type").change();
+                    // this.drawTypesList($modal.find(".type"), projId);
+                    // $modal.find(".type").change();
                     this.hideBusy();
                 }.bind(this),
             )
