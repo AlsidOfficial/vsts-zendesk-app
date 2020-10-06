@@ -95,9 +95,9 @@
                             <input type='checkbox' value='{{content_url}}' data-file-name='{{file_name}}'>
                                 {{#if thumbnails.length}}
                                 <img src="{{thumbnails.0.content_url}}">
-                  {{/if}}
-                  {{file_name}}
-                </label>
+                                {{/if}}
+                                {{file_name}}
+                        </label>
                     </li>
                     {{/each}}
                 </ul>

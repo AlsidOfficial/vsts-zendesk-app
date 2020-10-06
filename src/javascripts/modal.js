@@ -6,7 +6,7 @@ import helpers from "helpers";
 window.helpers = helpers;
 import _ from "lodash";
 
-String.prototype.fmt = function() {
+String.prototype.fmt = function () {
     return helpers.fmt.apply(this, [this, ...arguments]);
 };
 
@@ -18,7 +18,7 @@ if (!Element.prototype.matches) {
         Element.prototype.msMatchesSelector ||
         Element.prototype.oMatchesSelector ||
         Element.prototype.webkitMatchesSelector ||
-        function(s) {
+        function (s) {
             var matches = (this.document || this.ownerDocument).querySelectorAll(s),
                 i = matches.length;
             while (--i >= 0 && matches.item(i) !== this);
@@ -28,7 +28,7 @@ if (!Element.prototype.matches) {
 
 // closest polyfill
 if (!Element.prototype.closest)
-    Element.prototype.closest = function(s) {
+    Element.prototype.closest = function (s) {
         var el = this;
         if (!document.documentElement.contains(el)) return null;
         do {
@@ -63,7 +63,7 @@ const wrapZafClient = async (client, apiPath, ...rest) => {
     }
 };
 
-const objGet = function(obj, path) {
+const objGet = function (obj, path) {
     const npath = path.replace(/\]/g, "");
     const pieces = npath.split("[");
     let result = obj;
@@ -75,7 +75,7 @@ const objGet = function(obj, path) {
 
 // @TODO: for some reason trigger is not passing along additional data. Store it in local storage for now.
 const tempArgKey = "VSTS_ZENDESK_TEMP_ARG";
-const getMessageArg = function() {
+const getMessageArg = function () {
     const argVal = window.localStorage.getItem(tempArgKey);
     window.localStorage.removeItem(tempArgKey);
     let result;
@@ -86,25 +86,25 @@ const getMessageArg = function() {
     }
     return result;
 };
-const setMessageArg = function(data) {
+const setMessageArg = function (data) {
     window.localStorage.setItem(tempArgKey, JSON.stringify(data));
 };
 
 const sharedDataKey = "VSTS_ZENDESK_SHARED_DATA";
-const replaceVm = function(replacement) {
+const replaceVm = function (replacement) {
     window.localStorage.setItem(sharedDataKey, JSON.stringify(replacement));
 };
-const mergeVm = function(toMerge) {
+const mergeVm = function (toMerge) {
     const storedVm = JSON.parse(window.localStorage.getItem(sharedDataKey));
     _.merge(storedVm, toMerge);
     window.localStorage.setItem(sharedDataKey, JSON.stringify(storedVm));
 };
-const assignVm = function(toAssign) {
+const assignVm = function (toAssign) {
     const storedVm = JSON.parse(window.localStorage.getItem(sharedDataKey));
     Object.assign(storedVm, toAssign);
     window.localStorage.setItem(sharedDataKey, JSON.stringify(storedVm));
 };
-const getVm = function(path) {
+const getVm = function (path) {
     const storedVm = JSON.parse(window.localStorage.getItem(sharedDataKey));
     if (path) {
         return objGet(storedVm, path);
@@ -124,7 +124,7 @@ var QA_FIELD_NAME_SEVERITY = "[QA] - Severity",
 var client = ZAFClient.init();
 
 // add an event listener to detect once your app is registered with the framework
-client.on("app.registered", function(appData) {
+client.on("app.registered", function (appData) {
     client.get("currentUser.locale").then(userData => {
         // load translations based on the account's current locale
         I18n.loadTranslations(userData["currentUser.locale"]);
@@ -133,10 +133,10 @@ client.on("app.registered", function(appData) {
 });
 
 const ModalApp = BaseApp.extend({
-    ajax: function(endpoint) {
+    ajax: function (endpoint) {
         this.execQueryOnSidebar(["ajax", endpoint]);
     },
-    onAppActivated: function(data) {
+    onAppActivated: function (data) {
         const parentGuid = /(?:parentGuid=)(.*?)(?:$|&)/.exec(window.location.hash)[1];
         const parentClient = this.zafClient.instance(parentGuid);
         this._parentClient = parentClient;
@@ -174,14 +174,14 @@ const ModalApp = BaseApp.extend({
             }
         });
     },
-    onSidebarResponse: function(response) {
+    onSidebarResponse: function (response) {
         if (response && response.err) {
             this._nextSidebarQueryResponseResolver.reject({ message: response.err });
         } else {
             this._nextSidebarQueryResponseResolver.resolve(response);
         }
     },
-    execQueryOnSidebar: async function(taskName) {
+    execQueryOnSidebar: async function (taskName) {
         this.showBusy();
         setMessageArg(taskName);
         this._parentClient.trigger("execute.query");
@@ -196,13 +196,13 @@ const ModalApp = BaseApp.extend({
         return response;
     },
 
-    action_initNotify: async function() {
+    action_initNotify: async function () {
         const $modal = this.$("[data-main]");
         $modal.find(".modal-body").html(this.renderTemplate("loading"));
         const data = await this.execQueryOnSidebar(["ajax", "getComments"]);
         this.lastComment = data.comments[data.comments.length - 1].body;
         const attachments = _.flatten(
-            _.map(data.comments, function(comment) {
+            _.map(data.comments, function (comment) {
                 return comment.attachments || [];
             }),
             true,
@@ -225,7 +225,7 @@ const ModalApp = BaseApp.extend({
         this.resize({ width: "550px", height: "300px" });
     },
 
-    action_initUnlinkWorkItem: function(workItem) {
+    action_initUnlinkWorkItem: function (workItem) {
         var $modal = this.$("[data-main]");
         $modal.find(".modal-body").html(this.renderTemplate("unlink"));
         $modal.find(".modal-footer button").removeAttr("disabled");
@@ -241,7 +241,7 @@ const ModalApp = BaseApp.extend({
         this.resize({ width: "580px", height: "200px" });
     },
 
-    action_initLinkWorkItem: function() {
+    action_initLinkWorkItem: function () {
         const $modal = this.$("[data-main]");
         $modal.find(".modal-footer button").removeAttr("disabled");
         $modal.find(".modal-body").html(this.renderTemplate("link"));
@@ -273,7 +273,7 @@ const ModalApp = BaseApp.extend({
         projectCombo.change();
     },
 
-    action_initWorkItemDetails: async function(workItem) {
+    action_initWorkItemDetails: async function (workItem) {
         var $modal = this.$("[data-main]");
         $modal.find(".modal-header h3").html(this.I18n.t("modals.details.loading"));
         $modal.find(".modal-body").html(this.renderTemplate("loading"));
@@ -288,14 +288,14 @@ const ModalApp = BaseApp.extend({
         this.resize({ width: "770px" });
     },
 
-    action_initNewWorkItem: async function() {
+    action_initNewWorkItem: async function () {
         const $modal = this.$("[data-main]");
         $modal.find(".modal-body").html(this.renderTemplate("loading"));
         this.resize({ height: "520px", width: "780px" });
 
         const data = await this.execQueryOnSidebar(["ajax", "getComments"]);
         var attachments = _.flatten(
-            _.map(data.comments, function(comment) {
+            _.map(data.comments, function (comment) {
                 return comment.attachments || [];
             }),
             true,
@@ -351,27 +351,27 @@ const ModalApp = BaseApp.extend({
         this.resize({ height: "520px", width: "780px" });
     },
 
-    showBusy: function() {
+    showBusy: function () {
         this.$("[data-main] .busySpinner").show();
     },
 
-    hideBusy: function() {
+    hideBusy: function () {
         this.$("[data-main] .busySpinner").hide();
     },
 
-    onNewCopyTemplateClick: function(event) {
+    onNewCopyTemplateClick: function (event) {
         event.preventDefault();
         this.$("[data-main] .description").val(getVm("settings[vso_wi_description_template]"));
     },
 
-    onCopyLastCommentClick: function(event) {
+    onCopyLastCommentClick: function (event) {
         event.preventDefault();
         this.$(".notifyModal")
             .find("textarea")
             .val(this.lastComment);
     },
 
-    onNotifyAcceptClick: async function(event) {
+    onNotifyAcceptClick: async function (event) {
         const _currentUser = await this.zafClient.get("currentUser");
 
         var $modal = this.$("[data-main]");
@@ -403,20 +403,20 @@ const ModalApp = BaseApp.extend({
         }
     },
 
-    onUnlinkAcceptClick: async function(event) {
+    onUnlinkAcceptClick: async function (event) {
         const ticket = getVm("temp[ticket]");
         event.preventDefault();
 
         const $modal = this.$("[data-main]");
         const workItemId = $modal.attr("data-id");
 
-        const updateWorkItem = async function(workItem) {
+        const updateWorkItem = async function (workItem) {
             // Calculate the positions of links to remove
             const posOfLinksToRemove = [];
 
             _.each(
                 workItem.relations,
-                function(link, idx) {
+                function (link, idx) {
                     if (
                         link.rel.toLowerCase() === "hyperlink" &&
                         (link.attributes.name === VSO_ZENDESK_LINK_TO_TICKET_PREFIX + ticket.id ||
@@ -427,7 +427,7 @@ const ModalApp = BaseApp.extend({
                 }.bind(this),
             );
 
-            const finish = async function() {
+            const finish = async function () {
                 await this.unlinkTicket(workItem.id);
                 this.zafClient.invoke("notify", this.I18n.t("notify.workItemUnlinked").fmt(workItem.id));
 
@@ -448,7 +448,7 @@ const ModalApp = BaseApp.extend({
                 ].concat(
                     _.map(
                         posOfLinksToRemove,
-                        function(pos) {
+                        function (pos) {
                             return this.buildPatchToRemoveWorkItemHyperlink(pos);
                         }.bind(this),
                     ),
@@ -470,7 +470,7 @@ const ModalApp = BaseApp.extend({
         }
     },
 
-    onLinkAcceptClick: async function(event) {
+    onLinkAcceptClick: async function (event) {
         const ticket = getVm("temp[ticket]");
         const $modal = this.$("[data-main]");
         const workItemId = $modal.find(".inputVsoWorkItemId").val();
@@ -483,11 +483,11 @@ const ModalApp = BaseApp.extend({
             return this.showErrorInModal($modal, this.I18n.t("modals.link.errAlreadyLinked"));
         }
 
-        const updateWorkItem = async function(workItem) {
+        const updateWorkItem = async function (workItem) {
             //Let's check if there is already a link in the WI returned data
             const currentLink = _.find(
                 workItem.relations || [],
-                async function(link) {
+                async function (link) {
                     if (
                         link.rel.toLowerCase() === "hyperlink" &&
                         link.attributes.name === VSO_ZENDESK_LINK_TO_TICKET_PREFIX + ticket.id
@@ -497,7 +497,7 @@ const ModalApp = BaseApp.extend({
                 }.bind(this),
             );
 
-            const finish = async function() {
+            const finish = async function () {
                 await this.linkTicket(workItemId);
                 this.zafClient.invoke("notify", this.I18n.t("notify.workItemLinked").fmt(workItemId));
 
@@ -531,7 +531,7 @@ const ModalApp = BaseApp.extend({
         }
     },
 
-    onLinkResultClick: function(event) {
+    onLinkResultClick: function (event) {
         event.preventDefault();
         var $modal = this.$("[data-main]");
         var id = this.$(event.target)
@@ -542,15 +542,15 @@ const ModalApp = BaseApp.extend({
         this.resize();
     },
 
-    onLinkQueryButtonClick: async function() {
+    onLinkQueryButtonClick: async function () {
         const $modal = this.$("[data-main]");
         const projId = $modal.find(".project").val();
         const queryId = $modal.find(".query").val();
 
-        const drawQueryResults = function(results, countQueryItemsResult) {
+        const drawQueryResults = function (results, countQueryItemsResult) {
             const workItems = _.map(
                 results,
-                function(workItem) {
+                function (workItem) {
                     return {
                         id: workItem.id,
                         type: this.getWorkItemFieldValue(workItem, "System.WorkItemType"),
@@ -576,9 +576,9 @@ const ModalApp = BaseApp.extend({
 
         try {
             const data = await this.execQueryOnSidebar(["ajax", "getVsoWorkItemQueryResult", proj.name, queryId]);
-            const getWorkItemsIdsFromQueryResult = function(result) {
+            const getWorkItemsIdsFromQueryResult = function (result) {
                 if (result.queryType === "oneHop" || result.queryType === "tree") {
-                    return _.map(result.workItemRelations, function(rel) {
+                    return _.map(result.workItemRelations, function (rel) {
                         return rel.target.id;
                     });
                 } else {
@@ -597,21 +597,21 @@ const ModalApp = BaseApp.extend({
         }
     },
 
-    onLinkVsoProjectChange: function() {
+    onLinkVsoProjectChange: function () {
         this.loadQueriesList();
     },
 
-    onLinkReloadQueriesButtonClick: function() {
+    onLinkReloadQueriesButtonClick: function () {
         this.loadQueriesList(true);
     },
 
-    onLinkSearchClick: function() {
+    onLinkSearchClick: function () {
         const $modal = this.$("[data-main]");
         $modal.find(".search-section").show();
         this.resize({ width: "580px" });
     },
 
-    onNewWorkItemAcceptClick: async function() {
+    onNewWorkItemAcceptClick: async function () {
         const ticket = getVm("temp[ticket]");
 
         const $modal = this.$("[data-main]");
@@ -748,19 +748,19 @@ const ModalApp = BaseApp.extend({
         });
     },
 
-    isAlreadyLinkedToWorkItem: async function(id) {
+    isAlreadyLinkedToWorkItem: async function (id) {
         return _.contains(await this.getLinkedWorkItemIds(), id);
     },
 
-    getLinkedWorkItemIds: async function() {
+    getLinkedWorkItemIds: async function () {
         return await this.execQueryOnSidebar("getLinkedWorkItemIds");
     },
 
-    setDirty: async function() {
+    setDirty: async function () {
         this.execQueryOnSidebar("setDirty");
     },
 
-    loadQueriesList: async function(reload) {
+    loadQueriesList: async function (reload) {
         const $modal = this.$("[data-main]");
         const projId = $modal.find(".project").val();
         try {
@@ -771,7 +771,7 @@ const ModalApp = BaseApp.extend({
         this.drawQueriesList($modal.find(".query"), projId);
     },
 
-    loadProjectWorkItemQueries: async function(projectId, reload) {
+    loadProjectWorkItemQueries: async function (projectId, reload) {
         const [project, doneWithProj] = this.getProjectById(projectId);
 
         if (project.queries && !reload) {
@@ -785,10 +785,10 @@ const ModalApp = BaseApp.extend({
         return data;
     },
 
-    drawQueriesList: function(select, projId) {
+    drawQueriesList: function (select, projId) {
         const [project, done] = this.getProjectById(projId);
 
-        const drawNode = function(node, prefix) {
+        const drawNode = function (node, prefix) {
             //It's a folder
             if (node.isFolder) {
                 return "<optgroup label='%@ %@'>%@</optgroup>".fmt(
@@ -796,7 +796,7 @@ const ModalApp = BaseApp.extend({
                     node.name,
                     _.reduce(
                         node.children,
-                        function(options, childNode, ix) {
+                        function (options, childNode, ix) {
                             return "%@%@".fmt(options, drawNode(childNode, prefix + (ix + 1) + "."));
                         },
                         "",
@@ -811,7 +811,7 @@ const ModalApp = BaseApp.extend({
         select.html(
             _.reduce(
                 project.queries,
-                function(options, query, ix) {
+                function (options, query, ix) {
                     return "%@%@".fmt(options, drawNode(query, "" + (ix + 1) + "."));
                 },
                 "",
@@ -821,19 +821,19 @@ const ModalApp = BaseApp.extend({
         done();
     },
 
-    buildTicketLinkUrl: async function() {
+    buildTicketLinkUrl: async function () {
         const ticket = getVm("temp[ticket]");
         const _currentAccount = await wrapZafClient(this.zafClient, "currentAccount");
 
         return helpers.fmt("https://%@.zendesk.com/agent/#/tickets/%@", _currentAccount.subdomain, ticket.id);
     },
-    linkTicket: async function(workItemId) {
+    linkTicket: async function (workItemId) {
         await this.execQueryOnSidebar(["linkTicket", workItemId]);
     },
-    unlinkTicket: async function(workItemId) {
+    unlinkTicket: async function (workItemId) {
         await this.execQueryOnSidebar(["unlinkTicket", workItemId]);
     },
-    buildPatchToAddWorkItemField: function(fieldName, value) {
+    buildPatchToAddWorkItemField: function (fieldName, value) {
         // Check if the field type is html to replace newlines by br
         if (this.isHtmlContentField(fieldName)) {
             value = value.replace(/\n/g, "<br>");
@@ -845,7 +845,7 @@ const ModalApp = BaseApp.extend({
             value: value,
         };
     },
-    buildPatchToAddWorkItemHyperlink: function(url, name, comment) {
+    buildPatchToAddWorkItemHyperlink: function (url, name, comment) {
         return {
             op: "add",
             path: "/relations/-",
@@ -859,10 +859,10 @@ const ModalApp = BaseApp.extend({
             },
         };
     },
-    buildPatchToAddWorkItemAttachments: function(attachments, ticket) {
+    buildPatchToAddWorkItemAttachments: function (attachments, ticket) {
         return _.map(
             attachments,
-            function(att) {
+            function (att) {
                 return this.buildPatchToAddWorkItemHyperlink(
                     att.url,
                     VSO_ZENDESK_LINK_TO_TICKET_ATTACHMENT_PREFIX + ticket.id,
@@ -871,10 +871,10 @@ const ModalApp = BaseApp.extend({
             }.bind(this),
         );
     },
-    getSelectedAttachments: function($modal) {
+    getSelectedAttachments: function ($modal) {
         var attachments = [];
         $modal.find(".attachments input").each(
-            function(ix, el) {
+            function (ix, el) {
                 var $el = this.$(el);
                 if ($el.is(":checked")) {
                     attachments.push({
@@ -886,19 +886,19 @@ const ModalApp = BaseApp.extend({
         );
         return attachments;
     },
-    buildPatchToRemoveWorkItemHyperlink: function(pos) {
+    buildPatchToRemoveWorkItemHyperlink: function (pos) {
         return {
             op: "remove",
             path: helpers.fmt("/relations/%@", pos),
         };
     },
-    getFieldByFieldRefName: function(fieldRefName) {
+    getFieldByFieldRefName: function (fieldRefName) {
         const fields = getVm("fields");
-        return _.find(fields, function(f) {
+        return _.find(fields, function (f) {
             return f.refName == fieldRefName;
         });
     },
-    isHtmlContentField: function(fieldName) {
+    isHtmlContentField: function (fieldName) {
         var field = this.getFieldByFieldRefName(fieldName);
 
         if (field && field.type) {
@@ -908,14 +908,14 @@ const ModalApp = BaseApp.extend({
             return false;
         }
     },
-    onNewVsoProjectChange: function() {
+    onNewVsoProjectChange: function () {
         var $modal = this.$("[data-main]");
         var projId = $modal.find(".project").val();
 
         this.showBusy();
         this.loadProjectMetadata(projId)
             .then(
-                function() {
+                function () {
                     this.drawAreasList($modal.find(".area"), projId);
                     // this.drawTypesList($modal.find(".type"), projId);
                     // $modal.find(".type").change();
@@ -923,24 +923,24 @@ const ModalApp = BaseApp.extend({
                 }.bind(this),
             )
             .catch(
-                function(jqXHR) {
+                function (jqXHR) {
                     this.hideBusy();
                     this.showErrorInModal($modal, this.getAjaxErrorMessage(jqXHR));
                 }.bind(this),
             );
     },
-    fillComboWithProjects: function(el) {
+    fillComboWithProjects: function (el) {
         el.html(
             _.reduce(
                 getVm("projects"),
-                function(options, project) {
+                function (options, project) {
                     return "%@<option value='%@'>%@</option>".fmt(options, project.id, project.name);
                 },
                 "",
             ),
         );
     },
-    loadProjectMetadata: async function(projectId) {
+    loadProjectMetadata: async function (projectId) {
         var [project, done] = this.getProjectById(projectId);
 
         if (project.metadataLoaded === true) {
@@ -953,7 +953,7 @@ const ModalApp = BaseApp.extend({
         const areaData = await this.execQueryOnSidebar(["ajax", "getVsoProjectAreas", project.id]);
         var areas = []; // Flatten areas to format \Area 1\Area 1.1
 
-        const visitArea = function(area, currentPath) {
+        const visitArea = function (area, currentPath) {
             currentPath = currentPath ? currentPath + "\\" : "";
             currentPath = currentPath + area.name;
             areas.push({
@@ -962,14 +962,14 @@ const ModalApp = BaseApp.extend({
             });
 
             if (area.children && area.children.length > 0) {
-                _.forEach(area.children, function(child) {
+                _.forEach(area.children, function (child) {
                     visitArea(child, currentPath);
                 });
             }
         };
 
         visitArea(areaData);
-        project.areas = _.sortBy(areas, function(area) {
+        project.areas = _.sortBy(areas, function (area) {
             return area.name;
         });
 
@@ -982,38 +982,38 @@ const ModalApp = BaseApp.extend({
      * Make sure you call done() when you are done editing
      * the project, or it will not get saved back to storage.
      */
-    getProjectById: function(id) {
+    getProjectById: function (id) {
         const projects = getVm("projects");
         return [
-            _.find(projects, function(proj) {
+            _.find(projects, function (proj) {
                 return proj.id == id;
             }),
-            function() {
+            function () {
                 assignVm({ projects: projects });
             },
         ];
     },
-    setProject: function(proj) {
+    setProject: function (proj) {
         const projects = getVm("projects");
-        _.find(projects, function(p) {
+        _.find(projects, function (p) {
             return p.id === proj.id;
         });
     },
-    getWorkItemTypeByName: function(project, name) {
-        return _.find(project.workItemTypes, function(wit) {
+    getWorkItemTypeByName: function (project, name) {
+        return _.find(project.workItemTypes, function (wit) {
             return wit.name == name;
         });
     },
-    getWorkItemFieldValue: function(workItem, fieldRefName) {
+    getWorkItemFieldValue: function (workItem, fieldRefName) {
         var field = workItem.fields[fieldRefName];
         return field || "";
     },
-    hasFieldDefined: function(workItemType, fieldRefName) {
-        return _.some(workItemType.fieldInstances, function(fieldInstance) {
+    hasFieldDefined: function (workItemType, fieldRefName) {
+        return _.some(workItemType.fieldInstances, function (fieldInstance) {
             return fieldInstance.referenceName === fieldRefName;
         });
     },
-    drawTypesList: function(select, projectId) {
+    drawTypesList: function (select, projectId) {
         var [project, done] = this.getProjectById(projectId);
         select.html(
             this.renderTemplate("types", {
@@ -1022,7 +1022,7 @@ const ModalApp = BaseApp.extend({
         );
         done();
     },
-    drawAreasList: function(select, projectId) {
+    drawAreasList: function (select, projectId) {
         var [project, done] = this.getProjectById(projectId);
         select.html(
             this.renderTemplate("areas", {
@@ -1031,7 +1031,7 @@ const ModalApp = BaseApp.extend({
         );
         done();
     },
-    showErrorInModal: function($modal, err) {
+    showErrorInModal: function ($modal, err) {
         if ($modal.find(".modal-body .errors")) {
             $modal
                 .find(".modal-body .errors")
@@ -1040,28 +1040,28 @@ const ModalApp = BaseApp.extend({
             this.resize();
         }
     },
-    resize: function(size = {}) {
+    resize: function (size = {}) {
         // Automatically resize the iframe based on document height, if it's not in the "nav_bar" location
         if (this._context.location !== "nav_bar") {
             this.zafClient.invoke("resize", { height: size.height || this.$("html").height() + 40, width: size.width || this.$("html").outerWidth(true) });
         }
     },
-    restrictToAllowedWorkItems: function(wits) {
-        return _.filter(wits, function(wit) {
+    restrictToAllowedWorkItems: function (wits) {
+        return _.filter(wits, function (wit) {
             return _.contains(VSO_WI_TYPES_WHITE_LISTS, wit.name);
         });
     },
-    attachRestrictedFieldsToWorkItem: function(workItem, type) {
+    attachRestrictedFieldsToWorkItem: function (workItem, type) {
         const fieldSettings = getVm("fieldSettings");
         var fields = _.compact(
             _.map(
                 fieldSettings,
-                function(value, key) {
+                function (value, key) {
                     if (value[type]) {
                         if (_.has(workItem.fields, key)) {
                             return {
                                 refName: key,
-                                name: _.find(getVm("fields"), function(f) {
+                                name: _.find(getVm("fields"), function (f) {
                                     return f.refName == key;
                                 }).name,
                                 value: workItem.fields[key],
@@ -1078,7 +1078,7 @@ const ModalApp = BaseApp.extend({
             restricted_fields: fields,
         });
     },
-    getAjaxErrorMessage: function(jqXHR, errMsg) {
+    getAjaxErrorMessage: function (jqXHR, errMsg) {
         errMsg = errMsg || this.I18n.t("errorAjax"); //Let's try get a friendly message based on some cases
 
         var serverErrMsg;

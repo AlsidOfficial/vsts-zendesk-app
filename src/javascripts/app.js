@@ -5,7 +5,7 @@ window.helpers = helpers;
 window.Base64 = Base64;
 import _ from "lodash";
 
-String.prototype.fmt = function() {
+String.prototype.fmt = function () {
     return helpers.fmt.apply(this, [this, ...arguments]);
 };
 
@@ -34,7 +34,7 @@ const wrapZafClient = async (client, apiPath, ...rest) => {
     }
 };
 
-const objGet = function(obj, path) {
+const objGet = function (obj, path) {
     const npath = path.replace(/\]/g, "");
     const pieces = npath.split("[");
     let result = obj;
@@ -45,30 +45,30 @@ const objGet = function(obj, path) {
 };
 
 const tempArgKey = "VSTS_ZENDESK_TEMP_ARG";
-const getMessageArg = function() {
+const getMessageArg = function () {
     const argVal = window.localStorage.getItem(tempArgKey);
     window.localStorage.removeItem(tempArgKey);
     return JSON.parse(argVal);
 };
-const setMessageArg = function(data) {
+const setMessageArg = function (data) {
     window.localStorage.setItem(tempArgKey, JSON.stringify(data));
 };
 
 const sharedDataKey = "VSTS_ZENDESK_SHARED_DATA";
-const replaceVm = function(replacement) {
+const replaceVm = function (replacement) {
     window.localStorage.setItem(sharedDataKey, JSON.stringify(replacement));
 };
-const mergeVm = function(toMerge) {
+const mergeVm = function (toMerge) {
     const storedVm = JSON.parse(window.localStorage.getItem(sharedDataKey));
     _.merge(storedVm, toMerge);
     window.localStorage.setItem(sharedDataKey, JSON.stringify(storedVm));
 };
-const assignVm = function(toAssign) {
+const assignVm = function (toAssign) {
     const storedVm = JSON.parse(window.localStorage.getItem(sharedDataKey));
     Object.assign(storedVm, toAssign);
     window.localStorage.setItem(sharedDataKey, JSON.stringify(storedVm));
 };
-const getVm = function(path) {
+const getVm = function (path) {
     const storedVm = JSON.parse(window.localStorage.getItem(sharedDataKey));
     if (path) {
         return objGet(storedVm, path);
@@ -76,7 +76,7 @@ const getVm = function(path) {
     return storedVm;
 };
 
-const App = (function() {
+const App = (function () {
     "use strict"; //#region Constants
 
     var INSTALLATION_ID = 0,
@@ -138,7 +138,7 @@ const App = (function() {
         //#endregion
         //#region Requests
         requests: {
-            getComments: async function() {
+            getComments: async function () {
                 const ticket = await wrapZafClient(this.zafClient, "ticket");
 
                 return {
@@ -146,7 +146,7 @@ const App = (function() {
                     type: "GET",
                 };
             },
-            addTagToTicket: async function(tag) {
+            addTagToTicket: async function (tag) {
                 const ticket = await wrapZafClient(this.zafClient, "ticket");
                 return {
                     url: helpers.fmt("/api/v2/tickets/%@/tags.json", ticket.id),
@@ -157,7 +157,7 @@ const App = (function() {
                     },
                 };
             },
-            removeTagFromTicket: async function(tag) {
+            removeTagFromTicket: async function (tag) {
                 const ticket = await wrapZafClient(this.zafClient, "ticket");
                 return {
                     url: helpers.fmt("/api/v2/tickets/%@/tags.json", ticket.id),
@@ -168,7 +168,7 @@ const App = (function() {
                     },
                 };
             },
-            addPrivateCommentToTicket: async function(text) {
+            addPrivateCommentToTicket: async function (text) {
                 const ticket = await wrapZafClient(this.zafClient, "ticket");
                 return {
                     url: helpers.fmt("/api/v2/tickets/%@.json", ticket.id),
@@ -184,20 +184,20 @@ const App = (function() {
                     },
                 };
             },
-            getFullTicket: async function(data) {
+            getFullTicket: async function (data) {
                 const ticket = await wrapZafClient(this.zafClient, "ticket");
                 return {
                     type: "GET",
                     url: helpers.fmt("/api/v2/tickets/%@.json", ticket.id),
                 };
             },
-            getTicketFields: async function(data) {
+            getTicketFields: async function (data) {
                 return {
                     type: "GET",
                     url: "/api/v2/ticket_fields.json",
                 };
             },
-            saveSettings: function(data) {
+            saveSettings: function (data) {
                 return {
                     type: "PUT",
                     url: helpers.fmt("/api/v2/apps/installations/%@.json", this.installationId() || INSTALLATION_ID),
@@ -208,43 +208,43 @@ const App = (function() {
                     },
                 };
             },
-            getVsoProjects: function(skip) {
+            getVsoProjects: function (skip) {
                 return this.vsoRequest("/_apis/projects", {
                     $top: VSO_PROJECTS_PAGE_SIZE,
                     $skip: skip || 0,
                 });
             },
-            getVsoProjectWorkItemTypes: function(projectId) {
+            getVsoProjectWorkItemTypes: function (projectId) {
                 return this.vsoRequest(helpers.fmt("/%@/_apis/wit/workitemtypes", projectId));
             },
-            getVsoProjectAreas: function(projectId) {
+            getVsoProjectAreas: function (projectId) {
                 return this.vsoRequest(helpers.fmt("/%@/_apis/wit/classificationnodes/areas", projectId), {
                     $depth: 9999,
                 });
             },
-            getVsoProjectWorkItemQueries: function(projectName) {
+            getVsoProjectWorkItemQueries: function (projectName) {
                 return this.vsoRequest(helpers.fmt("/%@/_apis/wit/queries", projectName), {
                     $depth: 2,
                 });
             },
-            getVsoFields: function() {
+            getVsoFields: function () {
                 return this.vsoRequest("/_apis/wit/fields");
             },
-            getVsoWorkItems: function(ids) {
+            getVsoWorkItems: function (ids) {
                 return this.vsoRequest("/_apis/wit/workItems", {
                     ids: ids,
                     $expand: "relations",
                 });
             },
-            getVsoWorkItem: function(workItemId) {
+            getVsoWorkItem: function (workItemId) {
                 return this.vsoRequest(helpers.fmt("/_apis/wit/workItems/%@", workItemId), {
                     $expand: "relations",
                 });
             },
-            getVsoWorkItemQueryResult: function(projectName, queryId) {
+            getVsoWorkItemQueryResult: function (projectName, queryId) {
                 return this.vsoRequest(helpers.fmt("/%@/_apis/wit/wiql/%@", projectName, queryId));
             },
-            createVsoWorkItem: function(projectId, witName, data) {
+            createVsoWorkItem: function (projectId, witName, data) {
                 return this.vsoRequest(helpers.fmt("/%@/_apis/wit/workitems/$%@?bypassRules=true", projectId, witName), undefined, {
                     type: "PUT",
                     contentType: "application/json-patch+json",
@@ -254,7 +254,7 @@ const App = (function() {
                     },
                 });
             },
-            updateVsoWorkItem: function(workItemId, data) {
+            updateVsoWorkItem: function (workItemId, data) {
                 return this.vsoRequest(helpers.fmt("/_apis/wit/workItems/%@", workItemId), undefined, {
                     type: "PUT",
                     contentType: "application/json-patch+json",
@@ -264,7 +264,7 @@ const App = (function() {
                     },
                 });
             },
-            updateMultipleVsoWorkItem: function(data) {
+            updateMultipleVsoWorkItem: function (data) {
                 return this.vsoRequest("/_apis/wit/workItems", undefined, {
                     type: "PUT",
                     contentType: "application/json",
@@ -297,7 +297,7 @@ const App = (function() {
             return await window.appThis.getLinkedWorkItemIds();
         },
 
-        action_setDirty: function() {
+        action_setDirty: function () {
             window.appThis.isDirty = true;
         },
 
@@ -307,7 +307,7 @@ const App = (function() {
 
         //When we create the modal we send the current client's guid as a hash parameter to the modal by adding it to the url
 
-        createModal: async function(context, template) {
+        createModal: async function (context, template) {
             const parentGuid = context.instanceGuid;
             const options = {
                 location: "modal",
@@ -334,14 +334,14 @@ const App = (function() {
             return registeredModalClient;
         },
 
-        onModalClosed: async function() {
+        onModalClosed: async function () {
             if (this.isDirty) {
                 this.getLinkedVsoWorkItems();
                 this.isDirty = false;
             }
         },
 
-        execQueryOnModal: async function(taskName) {
+        execQueryOnModal: async function (taskName) {
             console.log(`Executing ${taskName} on modal.`);
             setMessageArg(taskName);
             this._currentModalClient.trigger("execute.query");
@@ -351,26 +351,26 @@ const App = (function() {
             return response;
         },
 
-        execActionOnModal: function(actionName) {
+        execActionOnModal: function (actionName) {
             console.log(`Executing ${actionName} action on modal.`);
             setMessageArg(actionName);
             this._currentModalClient.trigger("execute.action");
         },
 
-        onModalRegistered: function(modalGuid) {
+        onModalRegistered: function (modalGuid) {
             // resolve the promise that was set up when the instance was created.
             this._nextModalRegistrationResolver();
         },
 
-        onModalResponse: function(response) {
+        onModalResponse: function (response) {
             this._nextModalQueryResponseResolver(response);
         },
 
-        onGetVsoProjectsDone: function(projects) {
+        onGetVsoProjectsDone: function (projects) {
             assignVm({
                 projects: _.sortBy(
                     getVm("projects").concat(
-                        _.map(projects.value, function(project) {
+                        _.map(projects.value, function (project) {
                             return {
                                 id: project.id,
                                 name: project.name,
@@ -378,15 +378,15 @@ const App = (function() {
                             };
                         }),
                     ),
-                    function(project) {
+                    function (project) {
                         return project.name.toLowerCase();
                     },
                 ),
             });
         },
-        onGetVsoFieldsDone: function(data) {
+        onGetVsoFieldsDone: function (data) {
             assignVm({
-                fields: _.map(data.value, function(field) {
+                fields: _.map(data.value, function (field) {
                     return {
                         refName: field.referenceName,
                         name: field.name,
@@ -396,7 +396,7 @@ const App = (function() {
             });
         },
 
-        fetchLinkedVsoWorkItems: async function() {
+        fetchLinkedVsoWorkItems: async function () {
             const vsoLinkedIds = await this.getLinkedWorkItemIds();
             if (!vsoLinkedIds || vsoLinkedIds.length === 0) {
                 return [];
@@ -408,10 +408,10 @@ const App = (function() {
             }
         },
 
-        getLinkedVsoWorkItems: async function(func) {
+        getLinkedVsoWorkItems: async function (func) {
             var vsoLinkedIds = await this.getLinkedWorkItemIds();
 
-            var finish = async function(workItems) {
+            var finish = async function (workItems) {
                 if (func && _.isFunction(func)) {
                     func(workItems);
                 } else {
@@ -438,12 +438,12 @@ const App = (function() {
             //    .then(function (data) { finish(data.value); })
             //    .catch(function (jqXHR) { this.displayMain(this.getAjaxErrorMessage(jqXHR)); }.bind(this));
         },
-        onGetLinkedVsoWorkItemsDone: function(data) {
+        onGetLinkedVsoWorkItemsDone: function (data) {
             this.vmLocal.workItems = data;
 
             _.each(
                 this.vmLocal.workItems,
-                function(workItem) {
+                function (workItem) {
                     workItem.title = helpers.fmt("%@: %@", workItem.id, this.getWorkItemFieldValue(workItem, "System.Title"));
                 }.bind(this),
             );
@@ -453,7 +453,7 @@ const App = (function() {
         //#endregion
         //#region Events Implementation
         // App
-        onAppActivated: async function(data) {
+        onAppActivated: async function (data) {
             window.appThis = this;
 
             //Global view model shared by all instances
@@ -477,7 +477,7 @@ const App = (function() {
                 });
                 this.zafClient.on(
                     "execute.query",
-                    async function() {
+                    async function () {
                         let args = getMessageArg();
                         if (typeof args === "string") {
                             args = [args];
@@ -517,13 +517,13 @@ const App = (function() {
                         assignVm({ fieldSettings: JSON.parse(DEFAULT_FIELD_SETTINGS) });
                     } // Function to get all VSTS projects paginated if needed
 
-                    var getAllVsoProjects = function() {
+                    var getAllVsoProjects = function () {
                         return this.promise(
-                            function(done, fail) {
-                                var getPage = function(page) {
+                            function (done, fail) {
+                                var getPage = function (page) {
                                     var skip = page * VSO_PROJECTS_PAGE_SIZE;
                                     this.ajax("getVsoProjects", skip)
-                                        .then(function(data) {
+                                        .then(function (data) {
                                             // If the page is full, get a new page
                                             if (data.count === VSO_PROJECTS_PAGE_SIZE) {
                                                 getPage(page + 1);
@@ -531,7 +531,7 @@ const App = (function() {
                                                 done();
                                             }
                                         })
-                                        .catch(function(xhr, status, err) {
+                                        .catch(function (xhr, status, err) {
                                             fail(xhr, status, err);
                                         });
                                 }.bind(this); // Get First page
@@ -543,13 +543,13 @@ const App = (function() {
 
                     this.when(getAllVsoProjects(), this.ajax("getVsoFields"))
                         .then(
-                            async function() {
+                            async function () {
                                 assignVm({ isAppLoadedOk: true });
                                 await this.getLinkedVsoWorkItems();
                             }.bind(this),
                         )
                         .fail(
-                            function(jqXHR, textStatus, err) {
+                            function (jqXHR, textStatus, err) {
                                 this.switchTo("error_loading_app", {
                                     invalidAccount: jqXHR.status === 404,
                                     accountName: this.setting("vso_account"),
@@ -561,12 +561,12 @@ const App = (function() {
                 }
             }
         },
-        resize: function() {
+        resize: function () {
             this.zafClient.invoke("resize", { height: this.$("html").outerHeight(true) + 15, width: "100%" });
         },
 
         // UI
-        onNewWorkItemClick: async function() {
+        onNewWorkItemClick: async function () {
             assignVm({ temp: { ticket: await wrapZafClient(this.zafClient, "ticket") } });
             const modalClient = await this.createModal(this._context, "newWorkItemModal");
             modalClient.on("modal.close", () => {
@@ -574,13 +574,13 @@ const App = (function() {
             });
             this.execActionOnModal("initNewWorkItem");
         },
-        onNewVsoProjectChange: function() {
+        onNewVsoProjectChange: function () {
             var $modal = this.$(".newWorkItemModal");
             var projId = $modal.find(".project").val();
             this.showSpinnerInModal($modal);
             this.loadProjectMetadata(projId)
                 .then(
-                    function() {
+                    function () {
                         this.drawAreasList($modal.find(".area"), projId);
                         this.drawTypesList($modal.find(".type"), projId);
                         $modal.find(".type").change();
@@ -588,12 +588,12 @@ const App = (function() {
                     }.bind(this),
                 )
                 .catch(
-                    function(jqXHR) {
+                    function (jqXHR) {
                         this.showErrorInModal($modal, this.getAjaxErrorMessage(jqXHR));
                     }.bind(this),
                 );
         },
-        onNewVsoWorkItemTypeChange: function() {
+        onNewVsoWorkItemTypeChange: function () {
             var $modal = this.$(".newWorkItemModal");
             var project = this.getProjectById($modal.find(".project").val());
             var workItemType = this.getWorkItemTypeByName(project, $modal.find(".type").val()); //Check if we have severity
@@ -604,24 +604,24 @@ const App = (function() {
                 $modal.find(".severityInput").hide();
             }
         },
-        onNewCopyDescriptionClick: async function(event) {
+        onNewCopyDescriptionClick: async function (event) {
             const _ticket2 = await wrapZafClient(this.zafClient, "ticket");
 
             event.preventDefault();
             this.$(".newWorkItemModal .description").val(_ticket2.description);
         },
-        onCogClick: function() {
+        onCogClick: function () {
             this.switchTo("admin");
             this.drawSettings();
             this.resize();
         },
-        onCloseAdminClick: async function() {
+        onCloseAdminClick: async function () {
             await this.displayMain();
         },
-        onSettingChange: function() {
+        onSettingChange: function () {
             var self = this;
             var fieldSettings = {};
-            this.$("tr").each(function() {
+            this.$("tr").each(function () {
                 var line = self.$(this);
                 var fieldName = line.attr("data-refName");
                 if (!fieldName) return true; //continue
@@ -643,19 +643,19 @@ const App = (function() {
             this.ajax("saveSettings", {
                 vso_field_settings: JSON.stringify(fieldSettings),
             }).then(
-                function() {
+                function () {
                     this.zafClient.invoke("notify", this.I18n.t("admin.settingsSaved"));
                 }.bind(this),
             );
         },
-        onShowDetailsClick: async function(event) {
+        onShowDetailsClick: async function (event) {
             const modalClient = await this.createModal(this._context, "detailsModal");
             var id = this.$(event.target)
                 .closest(".workItem")
                 .attr("data-id");
             this.execActionOnModal(["initWorkItemDetails", this.getWorkItemById(id)]);
         },
-        onLinkClick: async function() {
+        onLinkClick: async function () {
             assignVm({ temp: { ticket: await wrapZafClient(this.zafClient, "ticket") } });
             const modalClient = await this.createModal(this._context, "linkModal");
             modalClient.on("modal.close", () => {
@@ -663,7 +663,7 @@ const App = (function() {
             });
             this.execActionOnModal(["initLinkWorkItem"]);
         },
-        onUnlinkClick: async function(event) {
+        onUnlinkClick: async function (event) {
             assignVm({ temp: { ticket: await wrapZafClient(this.zafClient, "ticket") } });
             var id = this.$(event.target)
                 .closest(".workItem")
@@ -675,20 +675,20 @@ const App = (function() {
             });
             this.execActionOnModal(["initUnlinkWorkItem", workItem]);
         },
-        onNotifyClick: async function() {
+        onNotifyClick: async function () {
             const modalClient = await this.createModal(this._context, "notifyModal");
             modalClient.on("modal.close", () => {
                 this.onModalClosed();
             });
             this.execActionOnModal("initNotify");
         },
-        onRefreshWorkItemClick: async function(event) {
+        onRefreshWorkItemClick: async function (event) {
             event.preventDefault();
             this.$(".workItemsError").hide();
             this.switchTo("loading");
             await this.getLinkedVsoWorkItems();
         },
-        onLoginClick: async function(event) {
+        onLoginClick: async function (event) {
             event.preventDefault();
             var vso_username = this.$(".vso_username").val();
             var vso_password = this.$(".vso_password").val();
@@ -713,15 +713,15 @@ const App = (function() {
                 await this.getLinkedVsoWorkItems();
             }
         },
-        onCloseLoginClick: async function() {
+        onCloseLoginClick: async function () {
             await this.displayMain();
         },
-        onUserIconClick: function() {
+        onUserIconClick: function () {
             this.switchTo("login");
         },
         //#endregion
         //#region Drawing
-        displayMain: async function(err) {
+        displayMain: async function (err) {
             if (getVm("isAppLoadedOk")) {
                 this.$(".cog").toggle(await this.isAdmin());
                 this.switchTo("main");
@@ -736,10 +736,10 @@ const App = (function() {
                 this.switchTo("error_loading_app");
             }
         },
-        drawWorkItems: function(data) {
+        drawWorkItems: function (data) {
             var workItems = _.map(
                 data || this.vmLocal.workItems,
-                function(workItem) {
+                function (workItem) {
                     var tmp = this.attachRestrictedFieldsToWorkItem(workItem, "summary");
                     return tmp;
                 }.bind(this),
@@ -753,7 +753,7 @@ const App = (function() {
             this.$(".buttons .notify").prop("disabled", !workItems.length);
             this.resize();
         },
-        drawTypesList: function(select, projectId) {
+        drawTypesList: function (select, projectId) {
             var project = this.getProjectById(projectId);
             select.html(
                 this.renderTemplate("types", {
@@ -761,7 +761,7 @@ const App = (function() {
                 }),
             );
         },
-        drawAreasList: function(select, projectId) {
+        drawAreasList: function (select, projectId) {
             var project = this.getProjectById(projectId);
             select.html(
                 this.renderTemplate("areas", {
@@ -769,12 +769,12 @@ const App = (function() {
                 }),
             );
         },
-        drawSettings: function() {
+        drawSettings: function () {
             const fields = getVm("fields");
             var settings = _.sortBy(
                 _.map(
                     fields,
-                    function(field) {
+                    function (field) {
                         var current = getVm("fieldSettings[" + field.refName + "]");
 
                         if (current) {
@@ -784,7 +784,7 @@ const App = (function() {
                         return field;
                     }.bind(this),
                 ),
-                function(f) {
+                function (f) {
                     return f.name;
                 },
             );
@@ -795,7 +795,7 @@ const App = (function() {
             });
             this.$(".content").html(html);
         },
-        showSpinnerInModal: function($modal) {
+        showSpinnerInModal: function ($modal) {
             if ($modal.find(".modal-body form")) {
                 $modal.find(".modal-body form").hide();
             }
@@ -808,7 +808,7 @@ const App = (function() {
                 $modal.find(".modal-footer button").attr("disabled", "disabled");
             }
         },
-        hideSpinnerInModal: function($modal) {
+        hideSpinnerInModal: function ($modal) {
             if ($modal.find(".modal-body form")) {
                 $modal.find(".modal-body form").show();
             }
@@ -821,7 +821,7 @@ const App = (function() {
                 $modal.find(".modal-footer button").prop("disabled", false);
             }
         },
-        showErrorInModal: function($modal, err) {
+        showErrorInModal: function ($modal, err) {
             this.hideSpinnerInModal($modal);
 
             if ($modal.find(".modal-body .errors")) {
@@ -831,18 +831,18 @@ const App = (function() {
                     .show();
             }
         },
-        closeModal: function($modal) {
+        closeModal: function ($modal) {
             $modal.find("#loading").hide();
             $modal
                 .modal("hide")
                 .find(".modal-footer button")
                 .attr("disabled", "");
         },
-        fillComboWithProjects: function(el) {
+        fillComboWithProjects: function (el) {
             el.html(
                 _.reduce(
                     getVm("projects"),
-                    function(options, project) {
+                    function (options, project) {
                         return "%@<option value='%@'>%@</option>".fmt(options, project.id, project.name);
                     },
                     "",
@@ -851,26 +851,26 @@ const App = (function() {
         },
         //#endregion
         //#region Helpers
-        isAdmin: async function() {
+        isAdmin: async function () {
             const _currentUser2 = await wrapZafClient(this.zafClient, "currentUser");
 
             return _currentUser2.role === "admin";
         },
-        vsoUrl: function(url, parameters) {
+        vsoUrl: function (url, parameters) {
             url = url[0] === "/" ? url.slice(1) : url;
             var full = [getVm("accountUrl"), url].join("/");
 
             if (parameters) {
                 full +=
                     "?" +
-                    _.map(parameters, function(value, key) {
+                    _.map(parameters, function (value, key) {
                         return [key, value].join("=");
                     }).join("&");
             }
 
             return full;
         },
-        authString: function(vso_username, vso_password) {
+        authString: function (vso_username, vso_password) {
             if (vso_password) {
                 var b64 = Base64.encode([vso_username, vso_password].join(":"));
                 this.store("auth_token_for_" + this.setting("vso_account"), b64);
@@ -878,7 +878,7 @@ const App = (function() {
 
             return helpers.fmt("Basic %@", this.store("auth_token_for_" + this.setting("vso_account")));
         },
-        vsoRequest: function(url, parameters, options) {
+        vsoRequest: function (url, parameters, options) {
             var requestOptions = _.extend(
                 {
                     url: this.vsoUrl(url, parameters),
@@ -894,21 +894,21 @@ const App = (function() {
             requestOptions.headers = _.extend(fixedHeaders, options ? options.headers : {});
             return requestOptions;
         },
-        getVsoResourceVersion: function(url) {
+        getVsoResourceVersion: function (url) {
             var resource = url.split("/_apis/")[1].split("/")[0];
             return VSO_API_RESOURCE_VERSION[resource] || VSO_API_DEFAULT_VERSION;
         },
-        attachRestrictedFieldsToWorkItem: function(workItem, type) {
+        attachRestrictedFieldsToWorkItem: function (workItem, type) {
             const fieldSettings = getVm("fieldSettings");
             var fields = _.compact(
                 _.map(
                     fieldSettings,
-                    function(value, key) {
+                    function (value, key) {
                         if (value[type]) {
                             if (_.has(workItem.fields, key)) {
                                 return {
                                     refName: key,
-                                    name: _.find(getVm("fields"), function(f) {
+                                    name: _.find(getVm("fields"), function (f) {
                                         return f.refName == key;
                                     }).name,
                                     value: workItem.fields[key],
@@ -925,54 +925,54 @@ const App = (function() {
                 restricted_fields: fields,
             });
         },
-        getWorkItemById: function(id) {
-            return _.find(this.vmLocal.workItems, function(workItem) {
+        getWorkItemById: function (id) {
+            return _.find(this.vmLocal.workItems, function (workItem) {
                 return workItem.id == id;
             });
         },
-        getProjectById: function(id) {
+        getProjectById: function (id) {
             const projects = getVm("projects");
-            return _.find(projects, function(proj) {
+            return _.find(projects, function (proj) {
                 return proj.id == id;
             });
         },
-        getWorkItemTypeByName: function(project, name) {
-            return _.find(project.workItemTypes, function(wit) {
+        getWorkItemTypeByName: function (project, name) {
+            return _.find(project.workItemTypes, function (wit) {
                 return wit.name == name;
             });
         },
-        getFieldByFieldRefName: function(fieldRefName) {
+        getFieldByFieldRefName: function (fieldRefName) {
             const fields = getVm("fields");
-            return _.find(fields, function(f) {
+            return _.find(fields, function (f) {
                 return f.refName == fieldRefName;
             });
         },
-        getWorkItemFieldValue: function(workItem, fieldRefName) {
+        getWorkItemFieldValue: function (workItem, fieldRefName) {
             var field = workItem.fields[fieldRefName];
             return field || "";
         },
-        hasFieldDefined: function(workItemType, fieldRefName) {
-            return _.some(workItemType.fieldInstances, function(fieldInstance) {
+        hasFieldDefined: function (workItemType, fieldRefName) {
+            return _.some(workItemType.fieldInstances, function (fieldInstance) {
                 return fieldInstance.referenceName === fieldRefName;
             });
         },
-        linkTicket: async function(workItemId) {
+        linkTicket: async function (workItemId) {
             var linkVsoTag = TAG_PREFIX + workItemId;
             await this.zafClient.invoke("ticket.tags.add", linkVsoTag);
             this.ajax("addTagToTicket", linkVsoTag);
         },
-        unlinkTicket: async function(workItemId) {
+        unlinkTicket: async function (workItemId) {
             var linkVsoTag = TAG_PREFIX + workItemId;
             await this.zafClient.invoke("ticket.tags.remove", linkVsoTag);
             this.ajax("removeTagFromTicket", linkVsoTag);
         },
-        buildTicketLinkUrl: async function() {
+        buildTicketLinkUrl: async function () {
             const _currentAccount = await wrapZafClient(this.zafClient, "currentAccount"),
                 _ticket6 = await wrapZafClient(this.zafClient, "ticket");
 
             return helpers.fmt("https://%@.zendesk.com/agent/#/tickets/%@", _currentAccount.subdomain, _ticket6.id);
         },
-        getLinkedWorkItemIds: async function() {
+        getLinkedWorkItemIds: async function () {
             const tags = (await this.zafClient.get("ticket.tags"))["ticket.tags"];
 
             return _.compact(
@@ -985,28 +985,28 @@ const App = (function() {
                 }),
             );
         },
-        isAlreadyLinkedToWorkItem: async function(id) {
+        isAlreadyLinkedToWorkItem: async function (id) {
             return _.contains(await this.getLinkedWorkItemIds(), id);
         },
-        loadProjectMetadata: function(projectId) {
+        loadProjectMetadata: function (projectId) {
             var project = this.getProjectById(projectId);
 
             if (project.metadataLoaded === true) {
-                return this.promise(function(done) {
+                return this.promise(function (done) {
                     done();
                 });
             }
 
             var loadWorkItemTypes = this.ajax("getVsoProjectWorkItemTypes", project.id).then(
-                function(data) {
+                function (data) {
                     project.workItemTypes = this.restrictToAllowedWorkItems(data.value);
                 }.bind(this),
             );
             var loadAreas = this.ajax("getVsoProjectAreas", project.id).then(
-                function(rootArea) {
+                function (rootArea) {
                     var areas = []; // Flatten areas to format \Area 1\Area 1.1
 
-                    var visitArea = function(area, currentPath) {
+                    var visitArea = function (area, currentPath) {
                         currentPath = currentPath ? currentPath + "\\" : "";
                         currentPath = currentPath + area.name;
                         areas.push({
@@ -1015,43 +1015,43 @@ const App = (function() {
                         });
 
                         if (area.children && area.children.length > 0) {
-                            _.forEach(area.children, function(child) {
+                            _.forEach(area.children, function (child) {
                                 visitArea(child, currentPath);
                             });
                         }
                     };
 
                     visitArea(rootArea);
-                    project.areas = _.sortBy(areas, function(area) {
+                    project.areas = _.sortBy(areas, function (area) {
                         return area.name;
                     });
                 }.bind(this),
             );
-            return this.when(loadWorkItemTypes, loadAreas).then(function() {
+            return this.when(loadWorkItemTypes, loadAreas).then(function () {
                 project.metadataLoaded = true;
             });
         },
-        loadProjectWorkItemQueries: function(projectId, reload) {
+        loadProjectWorkItemQueries: function (projectId, reload) {
             var project = this.getProjectById(projectId);
 
             if (project.queries && !reload) {
-                return this.promise(function(done) {
+                return this.promise(function (done) {
                     done();
                 });
             } //Let's load project queries
 
             return this.ajax("getVsoProjectWorkItemQueries", project.name).then(
-                function(data) {
+                function (data) {
                     project.queries = data.value;
                 }.bind(this),
             );
         },
-        restrictToAllowedWorkItems: function(wits) {
-            return _.filter(wits, function(wit) {
+        restrictToAllowedWorkItems: function (wits) {
+            return _.filter(wits, function (wit) {
                 return _.contains(VSO_WI_TYPES_WHITE_LISTS, wit.name);
             });
         },
-        isHtmlContentField: function(fieldName) {
+        isHtmlContentField: function (fieldName) {
             var field = this.getFieldByFieldRefName(fieldName);
 
             if (field && field.type) {
@@ -1061,7 +1061,7 @@ const App = (function() {
                 return false;
             }
         },
-        getAjaxErrorMessage: function(jqXHR, errMsg) {
+        getAjaxErrorMessage: function (jqXHR, errMsg) {
             errMsg = errMsg || this.I18n.t("errorAjax"); //Let's try get a friendly message based on some cases
 
             var serverErrMsg;
@@ -1075,7 +1075,7 @@ const App = (function() {
             var detail = this.I18n.t("errorServer").fmt(jqXHR.status, jqXHR.statusText, serverErrMsg);
             return errMsg + " " + detail;
         },
-        buildAccountUrl: function() {
+        buildAccountUrl: function () {
             var baseUrl;
             var setting = this.setting("vso_account");
             var loweredSetting = setting.toLowerCase();
