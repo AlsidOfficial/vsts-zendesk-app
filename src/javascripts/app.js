@@ -431,10 +431,16 @@ const App = (function () {
 
             //make a call for each linked wi to get the data we need (web URL is not returned from the getVsoWorkItems)
             try {
-                const requests = vsoLinkedIds.map(i => this.ajax("getVsoWorkItem", i));
+                const requests = vsoLinkedIds.map(i => this.ajax("getVsoWorkItem", i).catch(e => { return { getVsoWorkItemError: e }; }));
                 const linkedWorkItems = await Promise.all(requests);
-                finish(linkedWorkItems);
+                const reallyLinkedWi = linkedWorkItems.filter(wi => !wi.getVsoWorkItemError);
+                const errorsOnLinkedWi = linkedWorkItems.filter(wi => wi.getVsoWorkItemError);
+                if (errorsOnLinkedWi) {
+                    console.error("Errors while trying to get linked work items:", errorsOnLinkedWi);
+                }
+                finish(reallyLinkedWi);
             } catch (e) {
+                console.error(e);
                 await this.displayMain(e.message);
             }
 
