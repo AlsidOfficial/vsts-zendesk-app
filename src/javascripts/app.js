@@ -363,7 +363,11 @@ const App = (function () {
         },
 
         onModalResponse: function (response) {
+            if (this._nextModalQueryResponseResolver === null) {
+                return;
+            }
             this._nextModalQueryResponseResolver(response);
+            this._nextModalQueryResponseResolver = null;
         },
 
         onGetVsoProjectsDone: function (projects) {
@@ -479,6 +483,10 @@ const App = (function () {
                     "execute.query",
                     async function () {
                         let args = getMessageArg();
+                        if (args === null) {
+                            console.log("Executing app query without setting message arg first");
+                            return;
+                        }
                         if (typeof args === "string") {
                             args = [args];
                         }

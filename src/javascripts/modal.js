@@ -175,21 +175,27 @@ const ModalApp = BaseApp.extend({
         });
     },
     onSidebarResponse: function (response) {
+        if (this._nextSidebarQueryResponseResolver === null) {
+            return;
+        }
+
         if (response && response.err) {
             this._nextSidebarQueryResponseResolver.reject({ message: response.err });
         } else {
             this._nextSidebarQueryResponseResolver.resolve(response);
         }
+        this._nextSidebarQueryResponseResolver = null;
     },
     execQueryOnSidebar: async function (taskName) {
         this.showBusy();
         setMessageArg(taskName);
+        var responsePromise = new Promise((resolve, reject) => {
+            this._nextSidebarQueryResponseResolver = { resolve, reject };
+        });
         this._parentClient.trigger("execute.query");
         let response;
         try {
-            response = await new Promise((resolve, reject) => {
-                this._nextSidebarQueryResponseResolver = { resolve, reject };
-            });
+            response = await responsePromise;
         } finally {
             this.hideBusy();
         }
@@ -305,23 +311,19 @@ const ModalApp = BaseApp.extend({
         var templateDefined = !!this.setting("vso_wi_description_template");
 
         // Find QA fields that are needed in the form
-        // FIXME
-        // const res = await Promise.all([this.execQueryOnSidebar(["ajax", "getFullTicket"]), this.execQueryOnSidebar(["ajax", "getTicketFields"])]);
-        // console.info("res: ", res);
+        // Side note: due to the implementation of the queries, we cannot call both functions at once, e.g. using `await Promise.all()`
         const currentCustomFields = (await this.execQueryOnSidebar(["ajax", "getFullTicket"]))['ticket']['custom_fields'];
         const ticketFields = (await this.execQueryOnSidebar(["ajax", "getTicketFields"]))['ticket_fields'];
-        console.info("ticket.custom_fields:", currentCustomFields);
-        console.info("ticket_fields:", ticketFields);
 
         const currentTicketSeverityValue = this.getTicketQAValue(QA_FIELD_NAME_SEVERITY, ticketFields, currentCustomFields);
         const currentTicketRepeatabilityValue = this.getTicketQAValue(QA_FIELD_NAME_REPEATABILITY, ticketFields, currentCustomFields);
         const currentTicketFrequencyValue = this.getTicketQAValue(QA_FIELD_NAME_FREQUENCY, ticketFields, currentCustomFields);
         const currentTicketRegressionValue = this.getTicketQAValue(QA_FIELD_NAME_REGRESSION, ticketFields, currentCustomFields);
 
-        console.info("currentTicketSeverityValue: ", currentTicketSeverityValue);
-        console.info("currentTicketRepeatabilityValue: ", currentTicketRepeatabilityValue);
-        console.info("currentTicketFrequencyValue: ", currentTicketFrequencyValue);
-        console.info("currentTicketRegressionValue: ", currentTicketRegressionValue);
+        console.log("currentTicketSeverityValue: ", currentTicketSeverityValue);
+        console.log("currentTicketRepeatabilityValue: ", currentTicketRepeatabilityValue);
+        console.log("currentTicketFrequencyValue: ", currentTicketFrequencyValue);
+        console.log("currentTicketRegressionValue: ", currentTicketRegressionValue);
 
         $modal.find(".modal-body").html(
             this.renderTemplate("new", {
