@@ -737,15 +737,14 @@ const ModalApp = BaseApp.extend({
             return fieldOption.value === currentTicketField.value;
         });
 
-        if (foundOptionsValues === null || foundOptionsValues.length === 0) {
-            console.error(`Cannot find QA option '${currentTicketField.value}' in the defined field options (matching on the "value" field):`, field.custom_field_options);
-            return null;
-        }
+
+        const selected_option_name = foundOptionsValues === null || foundOptionsValues.length === 0 ?
+            '### NOT FOUND ###' : foundOptionsValues[0].name;
 
         return field.custom_field_options.map(function (o) {
             return {
                 value: o.name,
-                selected: foundOptionsValues[0].name === o.name,
+                selected: selected_option_name === o.name,
             };
         });
     },
