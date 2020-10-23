@@ -55,5 +55,5 @@
     "build": "webpack -p",
     "watch": "webpack --watch"
   },
-  "version": "0.6.3"
+  "version": "0.6.4"
 }
